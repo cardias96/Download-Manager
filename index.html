@@ -12,16 +12,16 @@
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="text-center space-y-2">
             <h1 class="text-2xl font-bold text-blue-400">Meus Apps & Atualizações</h1>
-            <p class="text-sm text-slate-400">Clica no estado para gerir o teu inventário e descarrega os APKs diretamente.</p>
+            <p class="text-sm text-slate-400">Clica em "Alternar Estado" nos apps que já tens instalados para o painel os memorizar.</p>
         </header>
 
         <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
             <div>
                 <p class="text-sm font-medium text-slate-200">Painel de Controlo</p>
-                <p class="text-xs text-slate-400" id="statusCount">Pronto a usar</p>
+                <p class="text-xs text-slate-400" id="statusCount">A carregar releases do GitHub...</p>
             </div>
-            <button onclick="renderList()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
-                🔄 Atualizar Vista
+            <button onclick="loadAllReleases()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                🔄 Atualizar Links
             </button>
         </div>
 
@@ -31,33 +31,32 @@
     </div>
 
     <script>
-        // Lista com os repositórios e os nomes exatos esperados dos APKs para link direto infalível
         const predefinedApps = [
-            { name: "Tailscale", type: "github", target: "tailscale/tailscale-android", apkName: "tailscale-release.apk", pkg: "com.tailscale.ipn" },
-            { name: "PipePipe", type: "github", target: "InfinityLoop1308/PipePipe", apkName: "app-universal-release.apk", pkg: "org.infinity.pipepipe" },
-            { name: "Ungoogled Chromium", type: "github", target: "ungoogled-software/ungoogled-chromium-android", apkName: "ungoogled-chromium_*-arm64.apk", pkg: "org.chromium.ungoogled.chromium" },
-            { name: "KeePassDX", type: "github", target: "Kunzisoft/KeePassDX", apkName: "KeePassDX-*-librerelease.apk", pkg: "com.kunzisoft.keepass.libre" },
-            { name: "DAVx5 OSE", type: "github", target: "bitfireAT/davx5-ose", apkName: "davx5-ose-*-gplay-release.apk", pkg: "at.bitfire.davdroid" },
+            { name: "Tailscale", type: "github", target: "tailscale/tailscale-android", pkg: "com.tailscale.ipn" },
+            { name: "PipePipe", type: "github", target: "InfinityLoop1308/PipePipe", pkg: "org.infinity.pipepipe" },
+            { name: "Ungoogled Chromium", type: "github", target: "ungoogled-software/ungoogled-chromium-android", pkg: "org.chromium.ungoogled.chromium" },
+            { name: "KeePassDX", type: "github", target: "Kunzisoft/KeePassDX", pkg: "com.kunzisoft.keepass.libre" },
+            { name: "DAVx5 OSE", type: "github", target: "bitfireAT/davx5-ose", pkg: "at.bitfire.davdroid" },
             { name: "FolderSync", type: "web", target: "https://www.apkmirror.com/apk/tacit-dynamics/foldersync/", pkg: "dk.tacit.android.foldersync.full" },
             { name: "VLC Android", type: "web", target: "https://get.videolan.org/vlc-android/", pkg: "org.videolan.vlc" },
-            // Fossify Apps (Utilizam o endpoint de tags/releases padrão do GitHub)
-            { name: "Fossify Phone", type: "fossify", target: "FossifyOrg/Phone", pkg: "org.fossify.phone" },
-            { name: "Fossify Documents", type: "fossify", target: "FossifyOrg/Documents", pkg: "org.fossify.documents" },
-            { name: "Fossify Notes", type: "fossify", target: "FossifyOrg/Notes", pkg: "org.fossify.notes" },
-            { name: "Fossify Math", type: "fossify", target: "FossifyOrg/Calculator", pkg: "org.fossify.math" },
-            { name: "Fossify Keyboard", type: "fossify", target: "FossifyOrg/Keyboard", pkg: "org.fossify.keyboard" },
-            { name: "Fossify Camera", type: "fossify", target: "FossifyOrg/Camera", pkg: "org.fossify.camera" },
-            { name: "Fossify Calendar", type: "fossify", target: "FossifyOrg/Calendar", pkg: "org.fossify.calendar" },
-            { name: "Fossify Clock", type: "fossify", target: "FossifyOrg/Clock", pkg: "org.fossify.clock" },
-            { name: "Fossify Home", type: "fossify", target: "FossifyOrg/Launcher", pkg: "org.fossify.home" },
-            { name: "Fossify Voice Recorder", type: "fossify", target: "FossifyOrg/Voice-Recorder", pkg: "org.fossify.voicerecorder" },
-            { name: "Fossify File Manager", type: "fossify", target: "FossifyOrg/File-Manager", pkg: "org.fossify.filemanager" },
-            { name: "Fossify Gallery", type: "fossify", target: "FossifyOrg/Gallery", pkg: "org.fossify.gallery" },
-            { name: "Fossify Messages", type: "fossify", target: "FossifyOrg/Messages", pkg: "org.fossify.messages" },
-            { name: "Fossify Music Player", type: "fossify", target: "FossifyOrg/Music-Player", pkg: "org.fossify.musicplayer" },
-            { name: "Fossify Contacts", type: "fossify", target: "FossifyOrg/Contacts", pkg: "org.fossify.contacts" }
+            { name: "Fossify Phone", type: "github", target: "FossifyOrg/Phone", pkg: "org.fossify.phone" },
+            { name: "Fossify Documents", type: "github", target: "FossifyOrg/Documents", pkg: "org.fossify.documents" },
+            { name: "Fossify Notes", type: "github", target: "FossifyOrg/Notes", pkg: "org.fossify.notes" },
+            { name: "Fossify Math", type: "github", target: "FossifyOrg/Calculator", pkg: "org.fossify.math" },
+            { name: "Fossify Keyboard", type: "github", target: "FossifyOrg/Keyboard", pkg: "org.fossify.keyboard" },
+            { name: "Fossify Camera", type: "github", target: "FossifyOrg/Camera", pkg: "org.fossify.camera" },
+            { name: "Fossify Calendar", type: "github", target: "FossifyOrg/Calendar", pkg: "org.fossify.calendar" },
+            { name: "Fossify Clock", type: "github", target: "FossifyOrg/Clock", pkg: "org.fossify.clock" },
+            { name: "Fossify Home", type: "github", target: "FossifyOrg/Launcher", pkg: "org.fossify.home" },
+            { name: "Fossify Voice Recorder", type: "github", target: "FossifyOrg/Voice-Recorder", pkg: "org.fossify.voicerecorder" },
+            { name: "Fossify File Manager", type: "github", target: "FossifyOrg/File-Manager", pkg: "org.fossify.filemanager" },
+            { name: "Fossify Gallery", type: "github", target: "FossifyOrg/Gallery", pkg: "org.fossify.gallery" },
+            { name: "Fossify Messages", type: "github", target: "FossifyOrg/Messages", pkg: "org.fossify.messages" },
+            { name: "Fossify Music Player", type: "github", target: "FossifyOrg/Music-Player", pkg: "org.fossify.musicplayer" },
+            { name: "Fossify Contacts", type: "github", target: "FossifyOrg/Contacts", pkg: "org.fossify.contacts" }
         ];
 
+        // Obter estado de instalação guardado no telemóvel (localStorage)
         let installedMap = JSON.parse(localStorage.getItem('user_installed_apps') || '{}');
 
         function toggleInstallState(pkg) {
@@ -66,62 +65,89 @@
             renderList();
         }
 
+        function init() {
+            renderList();
+            loadAllReleases();
+        }
+
         function renderList() {
             const container = document.getElementById('appList');
-            
             container.innerHTML = predefinedApps.map((app, index) => {
                 const isInstalled = installedMap[app.pkg] || false;
                 
                 const badgeClass = isInstalled 
-                    ? "bg-emerald-950 text-emerald-400 border border-emerald-800/50" 
-                    : "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                    ? "bg-emerald-950 text-emerald-400 border border-emerald-800/50 cursor-pointer" 
+                    : "bg-slate-800 text-slate-400 cursor-pointer hover:bg-slate-700";
                 
                 const badgeText = isInstalled ? "Instalado ✓ (Mudar)" : "Não instalado (Mudar)";
 
-                let downloadButtonHTML = '';
-
-                if (app.type === 'github' || app.type === 'fossify') {
-                    // O truque infalível do GitHub: o link direto para a página de releases do repositório
-                    // garante que o utilizador vai direto à fonte oficial sem erros de API.
-                    const releasesUrl = `https://github.com/${app.target}/releases/latest`;
-                    downloadButtonHTML = `
-                        <a href="${releasesUrl}" target="_blank" 
-                           class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1">
-                            ⬇️ Descarregar (Releases)
-                        </a>
-                    `;
-                } else {
-                    downloadButtonHTML = `
-                        <a href="${app.target}" target="_blank" 
-                           class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1">
-                            🌐 Abrir Página Oficial
-                        </a>
-                    `;
-                }
-
                 return `
-                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 shadow space-y-3">
+                    <div id="app-card-${index}" class="bg-slate-900 rounded-xl p-4 border border-slate-800 shadow space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
-                                <h3 class="font-semibold text-slate-100 text-sm">${app.name}</h3>
+                                <h3 class="font-semibold text-slate-100 text-sm flex items-center gap-2">
+                                    ${app.name} 
+                                </h3>
                                 <p class="text-xs text-slate-500 font-mono mt-0.5">${app.pkg}</p>
                             </div>
-                            <button onclick="toggleInstallState('${app.pkg}')" class="text-[10px] px-2.5 py-1 rounded-full transition cursor-pointer ${badgeClass}">
+                            <button onclick="toggleInstallState('${app.pkg}')" class="text-[10px] px-2.5 py-1 rounded-full transition ${badgeClass}">
                                 ${badgeText}
                             </button>
                         </div>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
-                            <span class="text-xs text-slate-400">Aceder à versão mais recente:</span>
-                            ${downloadButtonHTML}
+                        <div id="action-${index}" class="text-xs text-slate-400">
+                            A carregar link de download...
                         </div>
                     </div>
                 `;
             }).join('');
-
-            document.getElementById('statusCount').innerText = "Lista carregada com sucesso!";
         }
 
-        renderList();
+        async function loadAllReleases() {
+            document.getElementById('statusCount').innerText = "A descarregar dados das releases...";
+
+            for (let i = 0; i < predefinedApps.length; i++) {
+                const app = predefinedApps[i];
+                const actionDiv = document.getElementById(`action-${i}`);
+                
+                if (app.type === 'github') {
+                    try {
+                        const res = await fetch(`https://api.github.com/repos/${app.target}/releases/latest`);
+                        const data = await res.json();
+                        const apkAsset = data.assets?.find(a => a.name.endsWith('.apk'));
+                        
+                        if (apkAsset) {
+                            const sizeMB = (apkAsset.size / (1024 * 1024)).toFixed(1);
+                            actionDiv.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-300">Versão: <strong class="text-blue-400">${data.tag_name}</strong> (${sizeMB} MB)</span>
+                                    <a href="${apkAsset.browser_download_url}" target="_blank" 
+                                       class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition inline-block">
+                                        Descarregar APK
+                                    </a>
+                                </div>
+                            `;
+                        } else {
+                            actionDiv.innerHTML = `<span class="text-slate-500">Sem APK disponível na última release.</span>`;
+                        }
+                    } catch (e) {
+                        actionDiv.innerHTML = `<span class="text-red-400">Erro ao comunicar com a API do GitHub.</span>`;
+                    }
+                } else {
+                    actionDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">Fonte web externa</span>
+                            <a href="${app.target}" target="_blank" 
+                               class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition inline-block">
+                                Abrir Página Oficial
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+            document.getElementById('statusCount').innerText = "Tudo atualizado!";
+        }
+
+        init();
     </script>
 </body>
 </html>
