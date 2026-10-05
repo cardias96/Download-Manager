@@ -3,42 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de APKs e Open-Source</title>
+    <title>Painel Central - Meus Serviços & APKs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="theme-color" content="#1e293b">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-6">
 
     <div class="max-w-2xl mx-auto space-y-6">
+        
+        <!-- Cabeçalho Principal -->
         <header class="text-center space-y-2">
-            <h1 class="text-2xl font-bold text-blue-400">Meus Apps & Atualizações</h1>
-            <p class="text-sm text-slate-400">Clica no estado para gerir o teu inventário e descarrega os APKs diretamente.</p>
+            <h1 class="text-2xl font-bold text-blue-400">Painel Doméstico</h1>
+            <p class="text-sm text-slate-400">Alterna entre os teus serviços locais e o gestor de aplicações.</p>
         </header>
 
-        <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
-            <div>
-                <p class="text-sm font-medium text-slate-200">Painel de Controlo</p>
-                <p class="text-xs text-slate-400" id="statusCount">Pronto a usar</p>
-            </div>
-            <button onclick="renderList()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
-                🔄 Atualizar Vista
+        <!-- Barra de Navegação / Botões de Alternância -->
+        <nav class="flex rounded-xl bg-slate-900 p-1.5 border border-slate-800 gap-2">
+            <button onclick="switchTab('services')" id="btn-services" class="flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition bg-blue-600 text-white shadow">
+                🌐 Serviços (Radicale & SFTPGo)
             </button>
+            <button onclick="switchTab('apks')" id="btn-apks" class="flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+                📦 Gestor de APKs
+            </button>
+        </nav>
+
+        <!-- MÁSCARA 1: SERVIÇOS -->
+        <div id="view-services" class="space-y-4">
+            <div class="bg-slate-900 rounded-xl p-5 border border-slate-800 shadow space-y-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-slate-100 text-sm">Radicale</h3>
+                        <p class="text-xs text-slate-500 font-mono mt-0.5">Servidor CalDAV / CardDAV (Calendários e Contactos)</p>
+                    </div>
+                    <span class="bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px] px-2.5 py-1 rounded-full">Ativo</span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <span class="text-xs text-slate-400">Aceder ao serviço:</span>
+                    <a href="http://192.168.1.X:5232" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1.5">
+                        🌐 Aceder ao Radicale
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-5 border border-slate-800 shadow space-y-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-slate-100 text-sm">SFTPGo</h3>
+                        <p class="text-xs text-slate-500 font-mono mt-0.5">Gestão de Ficheiros e Armazenamento</p>
+                    </div>
+                    <span class="bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px] px-2.5 py-1 rounded-full">Ativo</span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <span class="text-xs text-slate-400">Aceder ao serviço:</span>
+                    <a href="http://192.168.1.X:8080" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1.5">
+                        📂 Aceder ao SFTPGo
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div id="appList" class="space-y-3">
-            <!-- Injetado dinamicamente -->
+        <!-- MÁSCARA 2: GESTOR DE APKS (O teu código integrado) -->
+        <div id="view-apks" class="space-y-6 hidden">
+            <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div>
+                    <p class="text-sm font-medium text-slate-200">Painel de Controlo</p>
+                    <p class="text-xs text-slate-400" id="statusCount">Pronto a usar</p>
+                </div>
+                <button onclick="renderList()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                    🔄 Atualizar Vista
+                </button>
+            </div>
+
+            <div id="appList" class="space-y-3">
+                <!-- Injetado dinamicamente -->
+            </div>
         </div>
+
     </div>
 
     <script>
+        // Função para alternar entre as abas/máscaras
+        function switchTab(tab) {
+            const viewServices = document.getElementById('view-services');
+            const viewApks = document.getElementById('view-apks');
+            const btnServices = document.getElementById('btn-services');
+            const btnApks = document.getElementById('btn-apks');
+
+            if (tab === 'services') {
+                viewServices.classList.remove('hidden');
+                viewApks.classList.add('hidden');
+                
+                btnServices.className = "flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition bg-blue-600 text-white shadow";
+                btnApks.className = "flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60";
+            } else {
+                viewServices.classList.add('hidden');
+                viewApks.classList.remove('hidden');
+                
+                btnApks.className = "flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition bg-blue-600 text-white shadow";
+                btnServices.className = "flex-1 py-2.5 px-4 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60";
+                
+                renderList(); // Renderiza a lista de APKs ao entrar na aba
+            }
+        }
+
+        // Lógica do Gestor de APKs
         const predefinedApps = [
             { name: "Tailscale", type: "github", target: "tailscale/tailscale-android", pkg: "com.tailscale.ipn" },
             { name: "PipePipe", type: "github", target: "InfinityLoop1308/PipePipe", pkg: "org.infinity.pipepipe" },
             { name: "Ungoogled Chromium", type: "github", target: "ungoogled-software/ungoogled-chromium-android", pkg: "org.chromium.ungoogled.chromium" },
             { name: "KeePassDX", type: "github", target: "Kunzisoft/KeePassDX", pkg: "com.kunzisoft.keepass.libre" },
             { name: "DAVx5 OSE", type: "github", target: "bitfireAT/davx5-ose", pkg: "at.bitfire.davdroid" },
-            { name: "FolderSync", type: "web", target: "https://www.apkmirror.com/apk/tacit-dynamics/foldersync/", pkg: "dk.tacit.android.foldersync.full" },
-            { name: "VLC Android", type: "web", target: "https://get.videolan.org/vlc-android/", pkg: "org.videolan.vlc" },
+            { name: "RCX (Original)", type: "github", target: "x0b/rcx", pkg: "io.rcx.dnd" },
+            { name: "VLC Android", type: "web", target: "https://get.videolan.org/vlc-android/last/", pkg: "org.videolan.vlc" },
             { name: "Fossify Phone", type: "fossify", target: "FossifyOrg/Phone", pkg: "org.fossify.phone" },
             { name: "Fossify Documents", type: "fossify", target: "FossifyOrg/Documents", pkg: "org.fossify.documents" },
             { name: "Fossify Notes", type: "fossify", target: "FossifyOrg/Notes", pkg: "org.fossify.notes" },
@@ -64,10 +140,6 @@
             renderList();
         }
 
-        function openLink(url) {
-            window.open(url, '_blank');
-        }
-
         function renderList() {
             const container = document.getElementById('appList');
             
@@ -80,18 +152,23 @@
                 
                 const badgeText = isInstalled ? "Instalado ✓ (Mudar)" : "Não instalado (Mudar)";
 
-                let targetUrl = '';
-                let buttonText = '';
-                let buttonStyle = '';
+                let downloadButtonHTML = '';
 
                 if (app.type === 'github' || app.type === 'fossify') {
-                    targetUrl = `https://github.com/${app.target}/releases/latest`;
-                    buttonText = '⬇️ Descarregar (Releases)';
-                    buttonStyle = 'bg-blue-600 hover:bg-blue-500 text-white';
+                    const releasesUrl = `https://github.com/${app.target}/releases/latest`;
+                    downloadButtonHTML = `
+                        <a href="${releasesUrl}" target="_blank" 
+                           class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1">
+                            ⬇️ Descarregar (Releases)
+                        </a>
+                    `;
                 } else {
-                    targetUrl = app.target;
-                    buttonText = '🌐 Abrir Página Oficial';
-                    buttonStyle = 'bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700';
+                    downloadButtonHTML = `
+                        <a href="${app.target}" target="_blank" 
+                           class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1">
+                            🌐 Abrir Página Oficial
+                        </a>
+                    `;
                 }
 
                 return `
@@ -107,10 +184,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
                             <span class="text-xs text-slate-400">Aceder à versão mais recente:</span>
-                            <button onclick="openLink('${targetUrl}')" 
-                               class="${buttonStyle} px-3 py-1.5 rounded-lg text-xs font-medium transition inline-flex items-center gap-1 cursor-pointer">
-                                ${buttonText}
-                            </button>
+                            ${downloadButtonHTML}
                         </div>
                     </div>
                 `;
@@ -118,8 +192,6 @@
 
             document.getElementById('statusCount').innerText = "Lista carregada com sucesso!";
         }
-
-        renderList();
     </script>
 </body>
 </html>
